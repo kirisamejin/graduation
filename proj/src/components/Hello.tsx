@@ -3,166 +3,164 @@ import * as React from "react";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 
+import { IViewer, IJulianDate, IEntity } from "../types/Cesium";
+export interface HelloProps {
+  compiler: string;
+  framework: string;
+}
+interface ImaterialColor {
+  firewire: any;
+  firewire2: any;
+}
+type IPathname = keyof ImaterialColor;
 
-import { IViewer, IJulianDate } from "../types/Cesium";
-export interface HelloProps { compiler: string; framework: string; }
-
+const materialColor: ImaterialColor = {
+  // firewire: new Cesium.Color(255, 153, 0, 155),
+  firewire: new Cesium.Color(1, 0.6, 0, 0.4),
+  firewire2: new Cesium.Color(1, 0, 0, 0.4)
+};
 // export const Hello = (props: HelloProps) => <h1>Hello from {props.compiler} and {props.framework}!</h1>;
 export class Hello extends React.Component<HelloProps, {}> {
-    public viewer: IViewer | undefined;
-    public name: string;
-    public readonly startDate: Date;
-    public readonly minuteInterval: number;
-    constructor(props: HelloProps) {
-        super(props);
-        this.name = "cesiumContainer";
-        this.startDate = new Date(2020, 2, 2, 16, 1, 3);
-        this.minuteInterval = 10;
-    }
+  public viewer: IViewer | undefined;
+  public name: string;
+  public readonly startDate: Date;
+  public readonly minuteInterval: number;
+  constructor(props: HelloProps) {
+    super(props);
+    // Cesium.Ion.defaultAccessToken =
+    this.name = "cesiumContainer";
+    this.startDate = new Date(2020, 2, 2, 16, 1, 3);
+    this.minuteInterval = 10;
+  }
 
-    public readonly componentDidMount = (): void => {
-        console.log("d")
-        this.viewer = new Cesium.Viewer(this.name);
+  public readonly componentDidMount = (): void => {
+    console.log("d", Cesium.Color.YELLOW);
+    this.viewer = new Cesium.Viewer(this.name);
 
-        // this.addLines();
-        this.setDate();
-        this.readData();
-        
-    }
+    // this.addLines();
+    this.setDate();
+    this.readData("firewire")
+      .then(() => this.readData("firewire2"))
+      .then(() => {
+        this.viewer.zoomTo(this.viewer.entities);
+      });
+  };
 
-    public readData = (): void => {
-        const startDate = this.startDate;
-        const minuteInterval = this.minuteInterval;
-        const addCorridorEntity = this.addCorridorEntity;
+  public readData = (pathname: IPathname): Promise<void> => {
+    const startDate = this.startDate;
+    const minuteInterval = this.minuteInterval;
+    const addCorridorEntity = this.addCorridorEntity;
 
-        const url = `http://127.0.0.1:3000/firewire`;
-        let start = Cesium.JulianDate.fromDate(startDate);
-        let stop = Cesium.JulianDate.addMinutes(start, minuteInterval, new Cesium.JulianDate());
+    const url = `http://127.0.0.1:3000/${pathname}`;
+    let start = Cesium.JulianDate.fromDate(startDate);
+    let stop = Cesium.JulianDate.addMinutes(
+      start,
+      minuteInterval,
+      new Cesium.JulianDate()
+    );
 
-        fetch(url, {
-            method: 'GET',
-            mode: 'cors',
-        })
-        .then((res) => {
-            return res.json();
-        })
-        .then(res => {
-            console.log(res);
-            for(const positions of res) {
-                addCorridorEntity(positions.map((pos: string) => parseFloat(pos)), start, stop);
-                start = Cesium.JulianDate.addMinutes(start, minuteInterval, new Cesium.JulianDate());
-                stop = Cesium.JulianDate.addMinutes(stop, minuteInterval, new Cesium.JulianDate());
-            }
-            this.viewer.zoomTo(this.viewer.entities);
-        }).catch(err => {
-            console.log(err);
+    return fetch(url, {
+      method: "GET",
+      mode: "cors"
+    })
+      .then(res => {
+        console.log(res.status);
+        return res.json();
+      })
+      .then(res => {
+        console.log(res);
+        for (const [i, positions] of res.entries()) {
+          addCorridorEntity(
+            positions.map((pos: string) => parseFloat(pos)),
+            start,
+            stop,
+            pathname,
+            i % 6 === 0 ? `${i / 5}h` : undefined
+          );
+          start = Cesium.JulianDate.addMinutes(
+            start,
+            minuteInterval,
+            new Cesium.JulianDate()
+          );
+          stop = Cesium.JulianDate.addMinutes(
+            stop,
+            minuteInterval,
+            new Cesium.JulianDate()
+          );
         }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
-        );
-    }
+  public setDate = (): void => {
+    const { viewer, startDate } = this;
+    const clock = viewer.clock;
+    // 30 / 5h = 6 / 1h  60min/6=10min
+    //
+    const start = Cesium.JulianDate.fromDate(startDate);
+    const stop = Cesium.JulianDate.addHours(start, 5, new Cesium.JulianDate());
+    viewer.timeline.zoomTo(start, stop);
 
-    public setDate = (): void => {
+    clock.startTime = start.clone();
+    clock.endTime = stop.clone();
+    clock.currentTime = start.clone();
+    // CLAMPED/ LOOP_STOP/ UNBOUNDED Cesium.ClockRange.LOOP_STOP
+    // clock.clockRange = Cesium.ClockRange.CLAMPED;
+    // 1s -> 5min
+    // clock.multiplier = 300;
+  };
 
-        const viewer = this.viewer;
-        const clock = viewer.clock;
-        // 30 / 5h = 6 / 1h  60min/6=10min
-        // 
-        const start = Cesium.JulianDate.fromDate(new Date(2020, 2, 2, 16, 1, 3));
-        const stop = Cesium.JulianDate.addHours(start, 5, new Cesium.JulianDate());
-        viewer.timeline.zoomTo(start, stop);
-        
-        clock.startTime = start.clone();
-        clock.endTime = stop.clone();
-        clock.currentTime = start.clone();
-        // CLAMPED/ LOOP_STOP/ UNBOUNDED Cesium.ClockRange.LOOP_STOP
-        // clock.clockRange = Cesium.ClockRange.CLAMPED;
-        // 1s -> 5min
-        // clock.multiplier = 300;
-    }
+  public addCorridorEntity = (
+    positions: Array<number>,
+    start: IJulianDate,
+    stop: IJulianDate,
+    color: IPathname,
+    label?: string
+  ): IEntity => {
+    const viewer = this.viewer;
+    return viewer.entities.add({
+      // name: 'Yellow line on the surface',
+      position: Cesium.Cartesian3.fromDegrees(positions[0], positions[1], 20),
+      corridor: {
+        positions: Cesium.Cartesian3.fromDegreesArray(positions),
+        width: 3,
+        material: materialColor[color]
+      },
+      availability: new Cesium.TimeIntervalCollection([
+        new Cesium.TimeInterval({ start, stop })
+      ]),
+      label: !!label
+        ? {
+            text: label,
+            showBackground: true,
+            scale: 0.6,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(
+              10.0,
+              8000.0
+            ),
+            disableDepthTestDistance: 100.0
+          }
+        : undefined
+    });
+  };
 
-    public addCorridorEntity = (positions: Array<number>, start: IJulianDate, stop: IJulianDate): void => {
-        const viewer = this.viewer;
-        return viewer.entities.add({
-            name: 'Yellow line on the surface',
-            corridor: {
-                positions: Cesium.Cartesian3.fromDegreesArray(positions),
-                width: 3,
-                material: Cesium.Color.YELLOW,
-            },
-            availability: new Cesium.TimeIntervalCollection(
-                [new Cesium.TimeInterval({start,stop})]
-            )
-        });
-    }
-
-    // public addLines = (): void => {
-    //     const viewer = this.viewer;
-    //     let start = Cesium.JulianDate.fromDate(new Date(2020, 2, 2, 16, 1, 3));
-    //     let stop = Cesium.JulianDate.addMinutes(start, 10, new Cesium.JulianDate());
-    //     console.log(start,stop);
-
-    //     const y = viewer.entities.add({
-    //         name: 'Yellow line on the surface',
-    //         corridor: {
-    //             positions: Cesium.Cartesian3.fromDegreesArray([
-    //                 117.16918796871745,31.85318321605651,
-    //                 117.16938611707407,31.852764140684513,
-    //                 117.1698206703775,31.852806011641874,
-    //                 117.17004085117813,31.853231501785483,
-    //                 117.16958774998982,31.853162441318396,
-    //                 117.16918796871745,31.85318321605651
-    //             ]),
-    //             width: 2,
-    //             material: Cesium.Color.YELLOW,
-    //         },
-    //         availability: new Cesium.TimeIntervalCollection(
-    //             [new Cesium.TimeInterval({
-    //                 start: start,
-    //                 stop: stop,
-    //             })]
-    //         )
-    //     });
-
-    //     start = Cesium.JulianDate.addMinutes(start, 10, new Cesium.JulianDate());
-    //     stop = Cesium.JulianDate.addMinutes(stop, 10, new Cesium.JulianDate());
-    //     console.log(start,stop);
-
-    //     const r = viewer.entities.add({
-    //         name: 'Red line on the surface',
-    //         corridor: {
-    //             positions: Cesium.Cartesian3.fromDegreesArray([
-    //                 117.16918796871745,31.85318321605651,
-    //                 117.16927233047485,31.852858589218027,
-    //                 117.16935669223227,31.852533962379542,
-    //                 117.16965903638774,31.85260815506204,
-    //                 117.1699613805432,31.852682347744533,
-    //                 117.17000111586067,31.85295692476501,
-    //                 117.17004085117813,31.853231501785483,
-    //                 117.16958774998982,31.853162441318396,
-    //                 117.16918796871745,31.85318321605651,
-    //             ]),
-    //             width: 2,
-    //             material: Cesium.Color.RED
-    //         },
-    //         availability: new Cesium.TimeIntervalCollection(
-    //             [new Cesium.TimeInterval({
-    //                 start: start,
-    //                 stop: stop,
-    //             })]
-    //         )
-    //     });
-
-    //     viewer.zoomTo(y).then(() => {
-    //         console.log("zoom");
-    //     });
-    // }
-
-    public render(): React.ReactNode {
-        console.log("r");
-        return (<div id={this.name} style={{  width: "100%",
-            height: "100%",
-            margin: 0,
-            padding: 0,
-            overflow: "hidden"}}></div>);
-    }
+  public render(): React.ReactNode {
+    console.log("r");
+    return (
+      <div
+        id={this.name}
+        style={{
+          width: "100%",
+          height: "100%",
+          margin: 0,
+          padding: 0,
+          overflow: "hidden"
+        }}
+      ></div>
+    );
+  }
 }
