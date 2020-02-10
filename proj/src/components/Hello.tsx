@@ -8,28 +8,32 @@ export interface HelloProps {
   compiler: string;
   framework: string;
 }
-interface ImaterialColor {
-  firewire: any;
-  firewire2: any;
-}
-type IPathname = keyof ImaterialColor;
 
-const materialColor: ImaterialColor = {
+declare type IPathname = "firewire" | "firewire2";
+
+const materialColor = {
   // firewire: new Cesium.Color(255, 153, 0, 155),
-  firewire: new Cesium.Color(1, 0.6, 0, 0.4),
-  firewire2: new Cesium.Color(1, 0, 0, 0.4)
+  firewire: new Cesium.Color(1, 0.6, 0, 1),
+  firewire2: new Cesium.Color(1, 0, 0, 1)
+};
+
+const lightmaterialColor = {
+  firewire: new Cesium.Color(1, 0.6, 0, 0.6),
+  firewire2: new Cesium.Color(1, 0, 0, 0.5)
 };
 // export const Hello = (props: HelloProps) => <h1>Hello from {props.compiler} and {props.framework}!</h1>;
 export class Hello extends React.Component<HelloProps, {}> {
   public viewer: IViewer | undefined;
   public name: string;
   public readonly startDate: Date;
+  public readonly endDate: Date;
   public readonly minuteInterval: number;
   constructor(props: HelloProps) {
     super(props);
     // Cesium.Ion.defaultAccessToken =
     this.name = "cesiumContainer";
-    this.startDate = new Date(2020, 2, 2, 16, 1, 3);
+    this.startDate = new Date(2020, 2, 2, 16, 1, 3); //
+    this.endDate = new Date(2020, 2, 2, 22, 1, 3);
     this.minuteInterval = 10;
   }
 
@@ -47,12 +51,18 @@ export class Hello extends React.Component<HelloProps, {}> {
   };
 
   public readData = (pathname: IPathname): Promise<void> => {
+    const { endDate } = this;
     const startDate = this.startDate;
     const minuteInterval = this.minuteInterval;
     const addCorridorEntity = this.addCorridorEntity;
 
     const url = `http://127.0.0.1:3000/${pathname}`;
     let start = Cesium.JulianDate.fromDate(startDate);
+    start = Cesium.JulianDate.addMinutes(
+      start,
+      minuteInterval,
+      new Cesium.JulianDate()
+    );
     let stop = Cesium.JulianDate.addMinutes(
       start,
       minuteInterval,
@@ -64,18 +74,18 @@ export class Hello extends React.Component<HelloProps, {}> {
       mode: "cors"
     })
       .then(res => {
-        console.log(res.status);
         return res.json();
       })
       .then(res => {
-        console.log(res);
         for (const [i, positions] of res.entries()) {
+          const index = i + 1;
+          const flag = index % 6 == 0;
           addCorridorEntity(
             positions.map((pos: string) => parseFloat(pos)),
             start,
-            stop,
-            pathname,
-            i % 6 === 0 ? `${i / 5}h` : undefined
+            flag ? Cesium.JulianDate.fromDate(endDate) : stop,
+            flag ? materialColor[pathname] : lightmaterialColor[pathname],
+            flag ? `${index / 6}h` : undefined
           );
           start = Cesium.JulianDate.addMinutes(
             start,
@@ -100,33 +110,50 @@ export class Hello extends React.Component<HelloProps, {}> {
     // 30 / 5h = 6 / 1h  60min/6=10min
     //
     const start = Cesium.JulianDate.fromDate(startDate);
-    const stop = Cesium.JulianDate.addHours(start, 5, new Cesium.JulianDate());
+    const stop = Cesium.JulianDate.addHours(start, 6, new Cesium.JulianDate());
+    // const stop = Cesium.JulianDate.addHours(start, 5, new Cesium.JulianDate());
     viewer.timeline.zoomTo(start, stop);
 
     clock.startTime = start.clone();
     clock.endTime = stop.clone();
-    clock.currentTime = start.clone();
+
+    // clock.currentTime = start.clone();
+    clock.currentTime = Cesium.JulianDate.addMinutes(
+      start,
+      10,
+      new Cesium.JulianDate()
+    );
     // CLAMPED/ LOOP_STOP/ UNBOUNDED Cesium.ClockRange.LOOP_STOP
     // clock.clockRange = Cesium.ClockRange.CLAMPED;
     // 1s -> 5min
-    // clock.multiplier = 300;
+    clock.multiplier = 600;
   };
 
   public addCorridorEntity = (
     positions: Array<number>,
     start: IJulianDate,
     stop: IJulianDate,
-    color: IPathname,
+    color: any,
     label?: string
   ): IEntity => {
     const viewer = this.viewer;
+    let index = positions.length;
+    index = index / 2;
+    if (index % 2 == 1) {
+      index--;
+    }
+
     return viewer.entities.add({
       // name: 'Yellow line on the surface',
-      position: Cesium.Cartesian3.fromDegrees(positions[0], positions[1], 20),
+      position: Cesium.Cartesian3.fromDegrees(
+        positions[index],
+        positions[index + 1],
+        20
+      ),
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray(positions),
         width: 3,
-        material: materialColor[color]
+        material: color
       },
       availability: new Cesium.TimeIntervalCollection([
         new Cesium.TimeInterval({ start, stop })
