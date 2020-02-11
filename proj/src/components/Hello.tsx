@@ -7,6 +7,8 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import CesiumNavigation from "cesium-navigation-es6";
 
 import { IViewer, IJulianDate, IEntity } from "../types/Cesium";
+
+import "./Hello.scss";
 export interface HelloProps {
   compiler: string;
   framework: string;
@@ -47,10 +49,13 @@ export class Hello extends React.Component<HelloProps, {}> {
       "pk.eyJ1IjoiYW5hbHl0aWNhbGdyYXBoaWNzIiwiYSI6ImNpd204Zm4wejAwNzYyeW5uNjYyZmFwdWEifQ.7i-VIZZWX8pd1bTfxIVj9g";
     const MAPBOX_STYLE_ID = "streets-v11";
     const MAPBOX_USERNAME = "mapbox";
+    const DEFAULT_MAPURL = `https://api.mapbox.com/styles/v1/${MAPBOX_USERNAME}/${MAPBOX_STYLE_ID}/tiles/512/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`;
     this.viewer = new Cesium.Viewer(this.name, {
       imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: `https://api.mapbox.com/styles/v1/${MAPBOX_USERNAME}/${MAPBOX_STYLE_ID}/tiles/512/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`
-      })
+        url: DEFAULT_MAPURL
+      }),
+      //temporarily disable animation widget
+      animation: false
     });
     CesiumNavigation(this.viewer, {
       defaultResetView: Cesium.Rectangle.fromDegrees(80, 22, 130, 50),
@@ -196,17 +201,6 @@ export class Hello extends React.Component<HelloProps, {}> {
 
   public render(): React.ReactNode {
     console.log("r");
-    return (
-      <div
-        id={this.name}
-        style={{
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          padding: 0,
-          overflow: "hidden"
-        }}
-      ></div>
-    );
+    return <div id={this.name}></div>;
   }
 }
