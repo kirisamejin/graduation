@@ -43,9 +43,13 @@ export class Hello extends React.Component<HelloProps, {}> {
 
   public readonly componentDidMount = (): void => {
     console.log("d", Cesium.Color.YELLOW);
+    const MAPBOX_ACCESS_TOKEN =
+      "pk.eyJ1IjoiYW5hbHl0aWNhbGdyYXBoaWNzIiwiYSI6ImNpd204Zm4wejAwNzYyeW5uNjYyZmFwdWEifQ.7i-VIZZWX8pd1bTfxIVj9g";
+    const MAPBOX_STYLE_ID = "streets-v11";
+    const MAPBOX_USERNAME = "mapbox";
     this.viewer = new Cesium.Viewer(this.name, {
-      imageryProvider: new Cesium.MapboxImageryProvider({
-        mapId: "mapbox.streets.v8"
+      imageryProvider: new Cesium.UrlTemplateImageryProvider({
+        url: `https://api.mapbox.com/styles/v1/${MAPBOX_USERNAME}/${MAPBOX_STYLE_ID}/tiles/512/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`
       })
     });
     CesiumNavigation(this.viewer, {
