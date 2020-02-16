@@ -13,6 +13,7 @@ interface ModelChangeState {
   longitude2: number;
   latitude2: number;
   distance: number;
+  id: string;
 }
 
 export default class ModelChange extends React.Component<
@@ -26,9 +27,15 @@ export default class ModelChange extends React.Component<
       latitude: 0,
       longitude2: 0,
       latitude2: 0,
-      distance: 0
+      distance: 0,
+      id: ""
     };
   }
+
+  public componentDidMount = () => {
+    console.log("did mount");
+    console.log(this.props);
+  };
 
   public handleChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -39,24 +46,30 @@ export default class ModelChange extends React.Component<
 
   handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     // change
-    const { longitude, latitude, longitude2, latitude2 } = this.state;
-    // const entity = this.props.viewer.entities.getById("house");
-    // entity.positon = Cesium.Cartesian3.fromDegrees(longitude, latitude, 0);
-    const distance = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(longitude, latitude),
-      Cesium.Cartesian3.fromDegrees(longitude2, latitude2)
-    );
-    this.setState({
-      distance
-    });
-    console.log(distance);
+    // const { longitude, latitude, longitude2, latitude2 } = this.state;
+    const { longitude, latitude, id } = this.state;
+    const entity = this.props.viewer.entities.getById(id);
+    console.log(this.props.viewer);
+    entity.positon = Cesium.Cartesian3.fromDegrees(longitude, latitude, 0);
+    // const distance = Cesium.Cartesian3.distance(
+    //   Cesium.Cartesian3.fromDegrees(longitude, latitude),
+    //   Cesium.Cartesian3.fromDegrees(longitude2, latitude2)
+    // );
+    // this.setState({
+    //   distance
+    // });
+    // console.log(distance);
     event.preventDefault();
   }
 
   public render() {
-    const { longitude, latitude, longitude2, latitude2, distance } = this.state;
+    const { longitude, latitude, id } = this.state;
     return (
       <>
+        <label>
+          id
+          <textarea value={id} onChange={this.handleChange} name="id" />
+        </label>
         <label>
           longitude
           <textarea
@@ -73,7 +86,7 @@ export default class ModelChange extends React.Component<
             name="latitude"
           />
         </label>
-        <label>
+        {/* <label>
           longitude2
           <textarea
             value={longitude2}
@@ -88,8 +101,8 @@ export default class ModelChange extends React.Component<
             onChange={this.handleChange}
             name="latitude2"
           />
-        </label>
-        <p>{distance}</p>
+        </label> */}
+        {/* <p>{distance}</p> */}
         <button value="get" onClick={this.handleSubmit} />
       </>
     );

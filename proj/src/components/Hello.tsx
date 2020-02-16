@@ -42,7 +42,9 @@ const Data = {
   firewire: new Array(),
   firewire2: new Array()
 };
-
+//                 1 small wirehouse  build1 build2   build3   build5
+// const SourceBuildingsId = ["72897", "74147", "74145", "74146", "74141"];
+const SourceBuildingsId = ["72897", "74222", "74224", "74227", "74228"];
 const Longitude = 117.17210532567749;
 const Latitude = 31.850840820176757;
 
@@ -53,7 +55,7 @@ export class Hello extends React.Component<HelloProps, {}> {
   public readonly startDate: Date;
   public readonly endDate: Date;
   public readonly minuteInterval: number;
-  public modelsId: string[];
+  public modelsMap: { [key: string]: Cesium.Entity };
   constructor(props: HelloProps) {
     super(props);
     Cesium.Ion.defaultAccessToken =
@@ -62,10 +64,11 @@ export class Hello extends React.Component<HelloProps, {}> {
     this.startDate = new Date(2020, 2, 2, 16, 1, 3); //
     this.endDate = new Date(2020, 2, 2, 22, 1, 3);
     this.minuteInterval = 10;
-    this.modelsId = [];
+    this.modelsMap = {};
   }
 
   public readonly componentDidMount = (): void => {
+    // const { viewer, modelsMap } = this;
     console.log("d", Cesium.Color.YELLOW);
     const MAPBOX_ACCESS_TOKEN =
       "pk.eyJ1IjoiYW5hbHl0aWNhbGdyYXBoaWNzIiwiYSI6ImNpd204Zm4wejAwNzYyeW5uNjYyZmFwdWEifQ.7i-VIZZWX8pd1bTfxIVj9g";
@@ -87,17 +90,17 @@ export class Hello extends React.Component<HelloProps, {}> {
 
     CesiumNavigation(this.viewer, {
       defaultResetView: Cesium.Rectangle.fromDegrees(
-        Longitude,
-        Latitude,
-        130,
-        50
+        117.16034889,
+        31.83126368,
+        117.2000885,
+        31.85969894
       ),
       enableCompass: true,
       enableZoomControls: true,
       enableDistanceLegend: true,
       enableCompassOuterRing: true
     });
-    // this.showLongitutde();
+    this.showLongitutde();
     // this.addLines();
     this.setDate();
     this.readData("firewire")
@@ -111,11 +114,8 @@ export class Hello extends React.Component<HelloProps, {}> {
         return this.readModel();
       })
       .then(() => {
-        for (let i = 0; i < this.modelsId.length; ++i) {
-          const id = this.modelsId[i];
-          const longitude = ModelsPositions[i * 2];
-          const latitude = ModelsPositions[i * 2 + 1];
-          this.changeOverTime(id, longitude, latitude);
+        for (const key of Object.keys(this.modelsMap)) {
+          this.changeOverTime(this.modelsMap[key]);
         }
 
         console.log("load finish");
@@ -124,6 +124,28 @@ export class Hello extends React.Component<HelloProps, {}> {
     //   this.viewer.zoomTo(this.viewer.entities);
     //   this.changeOverTime("firewire");
     // });
+  };
+  public addHandler = () => {
+    // const { viewer } = this;
+    // const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas as HTMLCanvasElement);
+    // const node = document.createElement();
+    // const div = document.body.appendChild()
+    // // let previousColor = undefined;
+    // handler.setInputAction(function(event) {
+    //   var pickedPrimitive = viewer.scene.pick(event.position);
+    //   var pickedEntity = (Cesium.defined(pickedPrimitive)) ? pickedPrimitive.id : undefined;
+    //   // Highlight the currently picked entity
+    //   console.log(pickedEntity)
+    //   if (Cesium.defined(previousPickedEntity)) {
+    //     previousPickedEntity.billboard.scale = 1.0;
+    //     previousPickedEntity.billboard.color = Cesium.Color.WHITE;
+    //   }
+    //   else if (Cesium.defined(pickedEntity) && Cesium.defined(pickedEntity.billboard)) {
+    //       pickedEntity.billboard.scale = 2.0;
+    //       pickedEntity.billboard.color = Cesium.Color.ORANGERED;
+    //       previousPickedEntity = pickedEntity;
+    //   }
+    // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   };
 
   public showLongitutde = () => {
@@ -144,19 +166,22 @@ export class Hello extends React.Component<HelloProps, {}> {
       const lat = Cesium.Math.toDegrees(cartographic.latitude);
       const lng = Cesium.Math.toDegrees(cartographic.longitude);
       const height = cartographic.height;
-      console.log("[Lng=>" + lng + ",Lat=>" + lat + ",H=>" + height + "]");
+      console.log("[Lng=>" + lng + "," + lat + ",H=>" + height + "]");
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   };
 
-  public changeOverTime = (id: string, log: number, lat: number) => {
+  public changeOverTime = (entity: Cesium.Entity) => {
     const pathname = "firewire";
     const { viewer, startDate, minuteInterval } = this;
-    const entity = viewer.entities.getById(id);
+    const id = entity.id;
+    const posCartesian3 = entity.position.getValue(viewer.clock.currentTime);
+    // console.log(id, "log:" + log + ", lat:" + lat);
     // console.log(entity);
     if (entity) {
       const colorProperty = new Cesium.TimeIntervalCollectionProperty();
+      const labelTextProperty = new Cesium.TimeIntervalCollectionProperty();
       let start = Cesium.JulianDate.fromDate(startDate);
-      console.log(start);
+      // console.log(start);
       let stop = Cesium.JulianDate.addMinutes(
         start,
         minuteInterval,
@@ -192,7 +217,7 @@ export class Hello extends React.Component<HelloProps, {}> {
           distance = Math.min(
             Cesium.Cartesian3.distance(
               Cesium.Cartesian3.fromDegrees(longitude, latitude),
-              Cesium.Cartesian3.fromDegrees(log, lat)
+              posCartesian3
             ),
             distance
           );
@@ -205,6 +230,24 @@ export class Hello extends React.Component<HelloProps, {}> {
         } else if (distance < 500) {
           color = DangerColor[2];
         }
+        colorProperty.intervals.addInterval(
+          new Cesium.TimeInterval({
+            start,
+            stop,
+            isStartIncluded: true,
+            isStopIncluded: true,
+            data: color
+          })
+        );
+        labelTextProperty.intervals.addInterval(
+          new Cesium.TimeInterval({
+            start,
+            stop,
+            isStartIncluded: true,
+            isStopIncluded: true,
+            data: `${distance.toFixed(2)}m`
+          })
+        );
         // console.log(distance);
         start = Cesium.JulianDate.addMinutes(
           start,
@@ -216,76 +259,90 @@ export class Hello extends React.Component<HelloProps, {}> {
           minuteInterval,
           new Cesium.JulianDate()
         );
-        colorProperty.intervals.addInterval(
-          new Cesium.TimeInterval({
-            start,
-            stop,
-            isStartIncluded: true,
-            isStopIncluded: false,
-            data: color
-          })
-        );
-        // console.log(colorProperty._intervals.length);
         //console.log(diff, leaps, distance);
       }
-      // console.log(colorProperty);
-      if (id === "m") {
-        entity.model.color = colorProperty;
-      } else {
-        entity.box.material = new Cesium.ColorMaterialProperty(colorProperty);
-      }
+      entity.model.color = colorProperty;
+      entity.label.text = labelTextProperty;
     } else {
       console.log("no this id");
     }
   };
 
   public readModel = (): Promise<Cesium.IonResource> => {
-    const { viewer, modelsId } = this;
+    const { viewer, modelsMap } = this;
     // 随机一些楼和地点
-    const maxHeight = 100;
-    const minHeight = 10;
-    const maxLength = 50;
-    const minLength = 20;
-    const maxWidth = 50;
-    const minWidth = 20;
-    for (let i = 0; i < ModelsPositions.length; i += 2) {
-      const height =
-        Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
-      const length =
-        Math.floor(Math.random() * (maxLength - minLength)) + minLength;
-      const width =
-        Math.floor(Math.random() * (maxWidth - minWidth)) + minWidth;
-      const longitude = ModelsPositions[i];
-      const latitude = ModelsPositions[i + 1];
-      const entity = viewer.entities.add(
-        new Cesium.Entity({
-          position: Cesium.Cartesian3.fromDegrees(longitude, latitude, 0),
-          //#TODO model
-          box: new Cesium.BoxGraphics({
-            dimensions: new Cesium.Cartesian3(length, width, height)
-          })
-        })
-      );
-      modelsId.push(entity.id);
-    }
+    // const maxHeight = 100;
+    // const minHeight = 10;
+    // const maxLength = 50;
+    // const minLength = 20;
+    // const maxWidth = 50;
+    // const minWidth = 20;
+    // for (let i = 0; i < ModelsPositions.length; i += 2) {
+    //   const height =
+    //     Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
+    //   const length =
+    //     Math.floor(Math.random() * (maxLength - minLength)) + minLength;
+    //   const width =
+    //     Math.floor(Math.random() * (maxWidth - minWidth)) + minWidth;
+    //   const longitude = ModelsPositions[i];
+    //   const latitude = ModelsPositions[i + 1];
+    //   const entity = viewer.entities.add(
+    //     new Cesium.Entity({
+    //       position: Cesium.Cartesian3.fromDegrees(longitude, latitude, 0),
+    //       //#TODO model
+    //       box: new Cesium.BoxGraphics({
+    //         dimensions: new Cesium.Cartesian3(length, width, height)
+    //       })
+    //     })
+    //   );
+    //   modelsId.push(entity.id);
+    // }
 
     // 载入模型
-    return Cesium.IonResource.fromAssetId("72897")
-      .then((resource: any) => {
-        console.log(resource);
-        const entity = viewer.entities.add(
-          new Cesium.Entity({
-            id: "m",
-            position: Cesium.Cartesian3.fromDegrees(Longitude, Latitude, 0),
-            //	model: { uri: resource, scale: 4.0 }
-            model: new Cesium.ModelGraphics({ uri: resource, scale: 4.0 })
-          })
-        );
-        modelsId.push(entity.id);
+    return Promise.all(
+      SourceBuildingsId.map((id: string, index: number) => {
+        return Cesium.IonResource.fromAssetId(id).then((resource: any) => {
+          const entity = viewer.entities.add(
+            new Cesium.Entity({
+              id,
+              position: Cesium.Cartesian3.fromDegrees(
+                ModelsPositions[index * 2],
+                ModelsPositions[index * 2 + 1],
+                0
+              ),
+              //	model: { uri: resource, scale: 4.0 }
+              model: new Cesium.ModelGraphics({ uri: resource, scale: 1.0 }),
+              point: new Cesium.PointGraphics({
+                color: Cesium.Color.GREEN,
+                pixelSize: 10
+              }),
+              label: new Cesium.LabelGraphics({
+                text: new ConstantProperty(`${id}`),
+                showBackground: new ConstantProperty(true),
+                scale: new ConstantProperty(0.6),
+                horizontalOrigin: new ConstantProperty(
+                  Cesium.HorizontalOrigin.CENTER
+                ),
+                verticalOrigin: new ConstantProperty(
+                  Cesium.VerticalOrigin.BOTTOM
+                ),
+                eyeOffset: new ConstantProperty(
+                  new Cesium.Cartesian3(0.0, 100, 0.0)
+                ),
+                distanceDisplayCondition: new ConstantProperty(
+                  new Cesium.DistanceDisplayCondition(10.0, 8000.0)
+                )
+                //disableDepthTestDistance: new ConstantProperty(100.0)
+              })
+            })
+          );
+          modelsMap[id] = entity;
+        });
+        // .otherwise((error: any) => {
+        //   console.log(error);
+        // });
       })
-      .otherwise((error: any) => {
-        console.log(error);
-      });
+    ).then();
   };
 
   public readData = (pathname: IPathname): Promise<void> => {
