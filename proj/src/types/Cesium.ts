@@ -51,3 +51,9 @@ export interface IViewer {
 export interface ICesium {
   viewer: IViewer;
 }
+
+export interface IDegree {
+  Degree1: number;
+  Degree2: number;
+  Degree3: number;
+}

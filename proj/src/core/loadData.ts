@@ -9,28 +9,29 @@ import {
   getFirewireStartDate,
   getModelStartDate,
   addTimeIntervalForModels,
-  addTimeIntervalForModel,
-  timeCollectionPlusPlus,
-  addSecureColorPropertyForModels
-} from "./Cesium";
+  addSecureColorPropertyForModels,
+  addStationModel,
+} from "./Cesium/Cesium";
 
 // constants
-import { StartDate, MinuteInterval } from "../constants/Time";
+import { FirewireStartDate, MinuteInterval } from "../constants/Time";
 import { BackEndUrl } from "../constants/Server";
 import { MaterialColor } from "../constants/Colors";
-import {
-  SourceBuildingsId,
-  ModelsPositions,
-  Models
-} from "../constants/Models";
+import { Models, StationModel } from "../constants/Models";
 // types
 import { IPathname } from "../types/User";
 
 function fetchFirewireData(pathname: IPathname) {
   const data = getCache(pathname);
   if (!data) {
-    const url = `${BackEndUrl}${pathname}`;
-    return fetch(url, { method: "GET", mode: "cors" }).then(res => res.json());
+    const url = "src/data/firewire.json";
+    return fetch(url, { method: "GET", mode: "no-cors" }).then((res) => {
+      return res.json();
+    });
+    // const url = `${BackEndUrl}${pathname}`;
+    // return fetch(url, { method: "GET", mode: "cors" }).then((res) =>
+    //   res.json()
+    // );
   } else {
     return new Promise(() => data);
   }
@@ -39,7 +40,7 @@ function fetchFirewireData(pathname: IPathname) {
 function addFirewire(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
   // const positionsProperty = new Cesium.TimeIntervalCollectionProperty();
   // let start = getFirewireStartDate();
-  let start = Cesium.JulianDate.fromDate(StartDate);
+  let start = Cesium.JulianDate.fromDate(FirewireStartDate);
   start = Cesium.JulianDate.addMinutes(
     start,
     MinuteInterval,
@@ -62,7 +63,6 @@ function addFirewire(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
       MaterialColor[pathname],
       `${(index / 6).toFixed(2)}h`
     );
-    console.log(start, stop);
     start = Cesium.JulianDate.addMinutes(
       start,
       MinuteInterval,
@@ -76,7 +76,12 @@ function addFirewire(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
   }
 }
 
-function addFirewires(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
+function addFirewires(
+  viewer: Cesium.Viewer,
+  pathname: IPathname,
+  data: any,
+  hasLabel: boolean
+) {
   // const positionsProperty = new Cesium.TimeIntervalCollectionProperty();
   let start = getFirewireStartDate();
   let stop = datePlusPlus(start);
@@ -89,9 +94,8 @@ function addFirewires(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
       start,
       stop,
       MaterialColor[pathname],
-      `${(index / 6).toFixed(2)}h`
+      hasLabel ? `${(index / 6).toFixed(2)}h` : undefined
     );
-    console.log(start, stop);
     start = datePlusPlus(start);
     stop = datePlusPlus(stop);
   }
@@ -99,33 +103,29 @@ function addFirewires(viewer: Cesium.Viewer, pathname: IPathname, data: any) {
 
 export function loadFirewireData(
   viewer: Cesium.Viewer,
-  pathname: IPathname
+  pathname: IPathname,
+  hasLabel: boolean
 ): Promise<any> {
   return fetchFirewireData(pathname)
-    .then(res => {
+    .then((res) => {
       cache(pathname, res);
-      addFirewires(viewer, pathname, res);
+      addFirewires(viewer, pathname, res, hasLabel);
       return res;
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 }
 
-function loadModelsData(
-  viewer: Cesium.Viewer,
-  pathname?: IPathname
-): Promise<Cesium.Entity[]> {
-  const promises = [];
+export function loadModelsData(viewer: Cesium.Viewer, pathname?: IPathname) {
+  const entities = [];
+  // console.log(Cesium.Ion.defaultAccessToken);
   for (const key in Object.keys(Models)) {
-    const { id, position } = Models[key];
-    const promise = Cesium.IonResource.fromAssetId(id).then((resource: any) => {
-      const entity = addModelEntity(viewer.entities, resource, id, position);
-      return entity;
-    });
-    promises.push(promise);
+    const { id, position, uri } = Models[key];
+    const entity = addModelEntity(viewer.entities, uri, id, position);
+    entities.push(entity);
   }
-  return Promise.all(promises);
+  return entities;
 }
 // color change & label text change
 function loadModelsChanges(
@@ -145,11 +145,41 @@ function loadModelsChanges(
   }
 }
 
+export function loadStationModel(viewer: Cesium.Viewer) {
+  const model = StationModel;
+  addStationModel(viewer.entities, model.uri, model.position, model.id);
+}
+
+export function loadStationModels(viewer: Cesium.Viewer) {
+  const model = StationModel;
+  const positions = model.positions;
+  let id = 0;
+  const stations = [];
+  for (let i = 0; i < model.positions.length; i += 2) {
+    // console.log({
+    //   positions,
+    //   position: positions[i],
+    //   position2: positions[i + 1]
+    // });
+    const res = addStationModel(
+      viewer.entities,
+      model.uri,
+      [positions[i], positions[i + 1]],
+      `${model.id}${id}`
+    );
+    // console.log(res);
+    stations.push(res);
+    id++;
+  }
+  return stations;
+}
+
 export function loadData(viewer: Cesium.Viewer, pathname: IPathname) {
-  return Promise.all([
-    loadFirewireData(viewer, pathname),
-    loadModelsData(viewer, pathname)
-  ]).then(([data, entities]) => {
-    loadModelsChanges(data, entities);
+  const path2 = "firewire2";
+  loadFirewireData(viewer, path2, false);
+  return loadFirewireData(viewer, pathname, true).then((firewireData) => {
+    const entities = loadModelsData(viewer, pathname);
+    loadModelsChanges(firewireData, entities);
+    return entities;
   });
 }

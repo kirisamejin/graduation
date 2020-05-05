@@ -1,0 +1,18 @@
+.cesium-infoBox {
+  div.description {
+    display: flex;
+    align-items: center;
+
+    div.description-title {
+      align-content: center;
+    }
+
+    div.description-content {
+      align-content: center;
+    }
+  }
+}
+
+.cesium-viewer-bottom {
+  display: none !important;
+}

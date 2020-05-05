@@ -12,6 +12,8 @@
   "scripts": {
     "test": "jest",
     "lint": "tslint -p .",
+    "tsc": "./node_modules/.bin/tsc",
+    "node": "./node_modules/.bin/node",
     "build": "./node_modules/.bin/webpack -p --config=webpack.config.prod.js",
     "dev": "./node_modules/.bin/webpack -d --config=webpack.config.dev.js",
     "start": "./node_modules/.bin/webpack-dev-server --config=webpack.config.dev.js --open"
@@ -44,6 +46,7 @@
     "html-webpack-plugin": "^3.2.0",
     "http": "0.0.0",
     "jest": "^25.1.0",
+    "json-loader": "^0.5.7",
     "node-sass": "^4.13.1",
     "regenerator-runtime": "^0.13.3",
     "sass-loader": "^8.0.2",

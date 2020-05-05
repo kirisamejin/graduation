@@ -70,6 +70,10 @@ module.exports = {
 				loader: 'babel-loader',
 			},
 			{
+				test: /\.json$/,
+				loader: 'json-loader'
+			},
+			{
 				test: /\.(png|gif|jpg|jpeg|svg|xml|json)$/,
 				use: ['url-loader']
 			},

@@ -1,0 +1,110 @@
+div.simucontainer {
+    position: absolute;
+    top: 10px;
+    max-width: 200px;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 0.5em 1.2em 1.2em 1.2em;
+    border-radius: 25px;
+    text-align: center;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+
+    >h3 {
+        border-bottom: 1px solid gainsboro;
+    }
+
+    p {
+        margin: 0
+    }
+
+    #animationPlayer {
+        color: white;
+        // background: rgba(0, 0, 0, 0.6);
+        // border-radius: 25px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        margin: 0px 0px 1em 0em;
+        text-align: left;
+
+        >p {
+            margin: 1em 1.2em 0 1.2em;
+            border-bottom: 1px solid gainsboro;
+        }
+    }
+
+    #tripContainer {
+        // color: white;
+        // background: rgba(0, 0, 0, 0.6);
+        // border-radius: 25px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: row;
+        // justify-content: space-evenly;
+        padding-bottom: 1em;
+        margin: 0 0 0 0;
+        //border-bottom: 1px solid gray;
+
+        .defultbtn {
+            display: inline-block;
+            text-align: center;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #CCC;
+            cursor: pointer;
+            margin: 0em 1em;
+            flex: 1;
+        }
+
+        .checkbox {
+            display: inline-block;
+            //border: 1px solid #C9C9C9;
+            border: 1px solid rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #CCC;
+            cursor: pointer;
+            margin: 0em 0em 0em 1em;
+            flex: 2;
+        }
+    }
+
+    #legendContainer {
+        color: white;
+        // background: rgba(0, 0, 0, 0.6);
+        // border-radius: 25px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        margin: 0px 0px 0px 0px;
+        text-align: left;
+
+        >p {
+            margin: 1em 1.2em 0 1.2em;
+            border-bottom: 1px solid gainsboro;
+        }
+
+        div.legend {
+            display: flex;
+            align-items: center;
+            margin: 0 1.2em;
+            padding: 0.1em;
+
+            div.rectangle {
+                padding: 5px;
+                margin-right: 3px;
+            }
+        }
+
+        div.legend:nth-last-child(1) {
+            margin-bottom: 1.2em;
+        }
+    }
+
+}
