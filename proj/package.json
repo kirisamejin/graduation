@@ -1,7 +1,7 @@
 {
-  "name": "czml",
+  "name": "forest-fire-system",
   "version": "1.0.0",
-  "description": "a data formulating tool for czml",
+  "description": "visualization system for forest-fire",
   "main": "index.js",
   "jest": {
     "testPathIgnorePatterns": [
@@ -16,7 +16,8 @@
     "node": "./node_modules/.bin/node",
     "build": "./node_modules/.bin/webpack -p --config=webpack.config.prod.js",
     "dev": "./node_modules/.bin/webpack -d --config=webpack.config.dev.js",
-    "start": "./node_modules/.bin/webpack-dev-server --config=webpack.config.dev.js --open"
+    "start": "./node_modules/.bin/webpack-dev-server --config=webpack.config.dev.js --open",
+    "release-server": "./node_modules/.bin/webpack-dev-server --config=webpack.config.prod.js --content-base /dist"
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +39,7 @@
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
     "babel-loader": "^8.0.6",
+    "babel-plugin-import": "^1.13.0",
     "cesium": "^1.65.0",
     "copy-webpack-plugin": "^5.1.1",
     "core-js": "^3.6.4",

@@ -1,10 +1,7 @@
 import * as React from "react";
-const { useEffect } = React;
-// @ts-ignore
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-// @ts-ignore
-import CesiumNavigation from "cesium-navigation-es6";
+import "./CesiumUtils.scss";
 
 import { Strings } from "../constants/Strings";
 import * as Colors from "../constants/Colors";
@@ -45,7 +42,7 @@ export const App = (props: {}) => {
   let modelEntities: Cesium.Entity[] = undefined;
   // let _viewer: Cesium.Viewer | undefined = undefined;
   //rendenr
-  useEffect(() => {
+  React.useEffect(() => {
     if (!viewer) {
       createViewer(name);
       // console.log(viewer);

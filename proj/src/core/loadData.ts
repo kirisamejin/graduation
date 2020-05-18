@@ -15,7 +15,7 @@ import {
 
 // constants
 import { FirewireStartDate, MinuteInterval } from "../constants/Time";
-import { BackEndUrl } from "../constants/Server";
+import { CurrentUrl } from "../constants/Server";
 import { MaterialColor } from "../constants/Colors";
 import { Models, StationModel } from "../constants/Models";
 // types
@@ -24,7 +24,7 @@ import { IPathname } from "../types/User";
 function fetchFirewireData(pathname: IPathname) {
   const data = getCache(pathname);
   if (!data) {
-    const url = "src/data/firewire.json";
+    const url = `${CurrentUrl}${pathname}.json`;
     return fetch(url, { method: "GET", mode: "no-cors" }).then((res) => {
       return res.json();
     });

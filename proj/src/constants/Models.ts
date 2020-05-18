@@ -1,4 +1,5 @@
 import { IDegree } from "../types/Cesium";
+import { CurrentUrl } from "../constants/Server";
 
 export const SourceBuildingsId = ["72897", "74222", "74224", "74227", "74228"];
 
@@ -12,7 +13,7 @@ export const ModelsPositions = [
   117.17880249,
   31.85481453,
   117.18772888,
-  31.8419097
+  31.8419097,
 ];
 
 // export const StationModel = {
@@ -53,7 +54,7 @@ export const StationModelPosition = [
   117.13538155923668,
   31.836833525267576,
   117.19273320570703,
-  31.86404465759285
+  31.86404465759285,
 ];
 
 export const StationModel = {
@@ -61,7 +62,7 @@ export const StationModel = {
   position: [117.16918796871745, 31.85318321605651],
   positions: StationModelPosition,
   count: 10, //10个变电站
-  uri: "./assets/station2.glb"
+  uri: `${CurrentUrl}station2.glb`,
 };
 
 export const Models = [
@@ -79,7 +80,7 @@ export const Models = [
     //117.19197105324179,31.846943864364405
     position: [117.19197105324179, 31.846943864364405],
     // position: [117.19209696513595, 31.847049714098713],
-    uri: "./assets/mengyuanxiaoqu.glb"
+    uri: `${CurrentUrl}mengyuanxiaoqu.glb`,
   },
   {
     index: "2",
@@ -87,7 +88,7 @@ export const Models = [
     //117.19197105324179,31.846943864364405
     position: [117.19227625657075, 31.84341407625236],
     // position: [117.19209696513595, 31.847049714098713],
-    uri: "./assets/southmengyuan.glb"
+    uri: `${CurrentUrl}southmengyuan.glb`,
   },
   {
     index: "3",
@@ -95,91 +96,91 @@ export const Models = [
     //117.19197105324179,31.846943864364405
     position: [117.19758574110945, 31.84362957469665],
     // position: [117.19209696513595, 31.847049714098713],
-    uri: "./assets/haitangwan.glb"
+    uri: `${CurrentUrl}haitangwan.glb`,
   },
   {
     index: "4",
     id: "huayikexueyuan",
     position: [117.19704133648504, 31.845829654074212],
-    uri: "./assets/huayikexueyuan.glb"
+    uri: `${CurrentUrl}huayikexueyuan.glb`,
   },
   {
     index: "5",
     id: "westtiantong",
     position: [117.19586691, 31.84831037],
-    uri: "./assets/westtiantong.glb"
+    uri: `${CurrentUrl}westtiantong.glb`,
   },
   {
     index: "6",
     id: "easttiantong",
     position: [117.19833489130706, 31.848092662156947],
-    uri: "./assets/easttiantong.glb"
+    uri: `${CurrentUrl}easttiantong.glb`,
   },
   {
     index: "7",
     id: "yuanjingtianxia",
     position: [117.191363053859, 31.850990513202344],
-    uri: "./assets/yuanjingtianxia.glb"
+    uri: `${CurrentUrl}yuanjingtianxia.glb`,
   },
   {
     index: "9",
     id: "wangyuan",
     position: [117.19599123060756, 31.851317831435836],
-    uri: "./assets/wangyuan.glb"
+    uri: `${CurrentUrl}wangyuan.glb`,
   },
   {
     index: "10",
     id: "shushanmingzhu",
     position: [117.18739753, 31.8508092],
-    uri: "./assets/shushanmingzhu.glb"
+    uri: `${CurrentUrl}shushanmingzhu.glb`,
   },
   {
     index: "11",
     id: "shuhuwanxiaoqu",
     position: [117.19048103, 31.85376025],
-    uri: "./assets/shuhuwanxiaoqu.glb"
+    uri: `${CurrentUrl}shuhuwanxiaoqu.glb`,
   },
   {
     index: "12",
     id: "chengshifengjing",
     position: [117.1926463470365, 31.852022509480463],
-    uri: "./assets/chengshifengjing.glb"
+    uri: `${CurrentUrl}chengshifengjing.glb`,
   },
   {
     index: "13",
     id: "tianyiguojishangwuzhongxin",
     position: [117.19858299652155, 31.85444393142292],
-    uri: "./assets/tianyiguojishangwuzhongxin.glb"
+    uri: `${CurrentUrl}tianyiguojishangwuzhongxin.glb`,
     //position: [117.19159126, 31.84978405]
   },
   {
     index: "14",
     id: "lvchengguihuayuan",
     position: [117.19423672, 31.84017822],
-    uri: "./assets/lvchengguihuayuan.glb"
+    uri: `${CurrentUrl}lvchengguihuayuan.glb`,
     //position: [117.19159126, 31.84978405]
   },
   {
     index: "15",
     id: "tianyuedasha",
     position: [117.20319561554129, 31.850600224478605],
-    uri: "./assets/tianyuedasha.glb"
+    uri: `${CurrentUrl}tianyuedasha.glb`,
     //position: [117.19159126, 31.84978405]
   },
   {
     index: "16",
     id: "lanxizhen",
     position: [117.18665251355465, 31.83579981994325],
-    uri: "./assets/lanxizhen.glb"
+    uri: `${CurrentUrl}lanxizhen.glb`,
     //position: [117.19159126, 31.84978405]
   },
   {
     index: "17",
     id: "寺庙",
     position: [117.17858505, 31.83607664],
-    uri: "./assets/alou.glb"
+    uri: `${CurrentUrl}alou.glb`,
     //position: [117.19159126, 31.84978405]
-  }
+  },
   // {
   //   id: "74224",
   //   position: [117.20179330859165, 31.85015520007622]
@@ -200,11 +201,11 @@ export const DegreeOfDangerArray = [1000, 1500, 2500];
 export const DegreeOfDanger: IDegree = {
   Degree1: 1000,
   Degree2: 1500,
-  Degree3: 2500
+  Degree3: 2500,
 };
 
 export const DegreeOfElectricPower: IDegree = {
   Degree1: 1000,
   Degree2: 1300,
-  Degree3: 2000
+  Degree3: 2000,
 };

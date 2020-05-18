@@ -34,8 +34,8 @@ export function createViewer(name: string) {
       accessToken: Strings.MAPBOX_ACCESS_TOKEN,
       shadows: false,
     }),
+    baseLayerPicker: false,
   });
-  viewer.scene.globe.enableLighting = false;
 }
 
 export function datePlusPlus(date: Cesium.JulianDate) {

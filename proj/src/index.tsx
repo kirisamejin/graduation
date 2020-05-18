@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 
 // import { Hello } from "./components/Hello";
 import { App } from "./core/CesiumUtils";
+// import { App } from "./core/Fire";
 
 const root = document.createElement("div");
 
