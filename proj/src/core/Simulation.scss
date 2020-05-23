@@ -1,10 +1,10 @@
 div.simucontainer {
     position: absolute;
     top: 10px;
-    max-width: 200px;
+    //max-width: 200px;
     color: white;
     background: rgba(0, 0, 0, 0.6);
-    padding: 0.5em 1.2em 1.2em 1.2em;
+    padding: 0.6em .6em .6em .6em;
     border-radius: 25px;
     text-align: center;
     font-size: 14px;
@@ -17,6 +17,83 @@ div.simucontainer {
 
     p {
         margin: 0
+    }
+
+    #header {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        justify-self: flex-end;
+        min-width: 228px;
+
+        h3 {
+            flex: 3;
+            min-width: 3em;
+            margin: .2em;
+        }
+
+        .switch {
+            display: flex;
+            justify-content: center;
+
+
+            .icon {
+                justify-self: center;
+                align-self: center;
+            }
+
+            flex: 1;
+        }
+    }
+
+    #navTab {
+        list-style: none;
+        margin: 0px;
+        padding: 0px;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        margin-top: 1em;
+        margin-bottom: 1em;
+
+        .tab {
+            list-style: none;
+            text-align: center;
+            display: relative;
+
+            &.active {
+                color: #EEE;
+            }
+
+            &.inactive {
+                border-bottom: 1px solid rgb(173, 171, 171);
+                background-color: #333;
+            }
+
+            color: #CCC;
+            cursor: pointer;
+            padding: 0em 2em;
+            font-size: 1em;
+
+            border: {
+                top: {
+                    left-radius: .5em;
+                    right-radius: .5em;
+                }
+            }
+
+            // box-shadow: 0px -2px 5px 1px rgb(61, 61, 61);
+            border-top: 1px solid #333;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+
+
+            &:hover {
+                //
+            }
+        }
+
     }
 
     #animationPlayer {
@@ -40,18 +117,17 @@ div.simucontainer {
         // color: white;
         // background: rgba(0, 0, 0, 0.6);
         // border-radius: 25px;
-        font-size: 14px;
+        font-size: 10px;
         display: flex;
         flex-direction: row;
         // justify-content: space-evenly;
-        padding-bottom: 1em;
         margin: 0 0 0 0;
         //border-bottom: 1px solid gray;
 
         .defultbtn {
             display: inline-block;
             text-align: center;
-            min-width: 20px;
+            min-width: 50px;
             height: 20px;
             border-radius: 30px;
             border: 1px solid rgba(0, 0, 0, 0.6);
@@ -70,7 +146,7 @@ div.simucontainer {
             color: #CCC;
             cursor: pointer;
             margin: 0em 0em 0em 1em;
-            flex: 2;
+            flex: 1;
         }
     }
 

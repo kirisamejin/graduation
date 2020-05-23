@@ -26,16 +26,19 @@ import { IDegree } from "../../types/Cesium";
 
 export let viewer: Cesium.Viewer | undefined = undefined;
 
-export function createViewer(name: string) {
-  viewer = new Cesium.Viewer(name, {
-    // @ts-ignore
-    imageryProvider: new Cesium.MapboxImageryProvider({
-      mapId: "mapbox.dark",
-      accessToken: Strings.MAPBOX_ACCESS_TOKEN,
-      shadows: false,
-    }),
-    baseLayerPicker: false,
-  });
+export function getViewer(name?: string) {
+  if (arguments.length === 1 && !viewer) {
+    return (viewer = new Cesium.Viewer(name, {
+      // @ts-ignore
+      imageryProvider: new Cesium.MapboxImageryProvider({
+        mapId: "mapbox.dark",
+        accessToken: Strings.MAPBOX_ACCESS_TOKEN,
+        shadows: false,
+      }),
+      baseLayerPicker: false,
+    }));
+  }
+  return viewer;
 }
 
 export function datePlusPlus(date: Cesium.JulianDate) {
@@ -351,10 +354,6 @@ export function addStationModel(
 ) {
   const start = PowerStartJulianDate.clone();
   const stop = PowerEndJulianDate.clone();
-  console.log("time", {
-    start,
-    stop,
-  });
   return entities.add(
     new Cesium.Entity({
       id,
@@ -362,7 +361,6 @@ export function addStationModel(
       //	model: { uri: resource, scale: 4.0 }
       model: new Cesium.ModelGraphics({
         uri,
-        scale: 0.003,
         color: new Cesium.TimeIntervalCollectionProperty(),
         // silhouetteColor: new Cesium.ConstantProperty(SilhouetteColor),
         // silhouetteSize: 1

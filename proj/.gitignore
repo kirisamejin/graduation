@@ -2,4 +2,7 @@ node_modules
 .DS_Store
 dist
 test_dist
-processs*
+processs* 
+draco*
+data
+package-lock*

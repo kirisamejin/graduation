@@ -57,12 +57,17 @@ export const StationModelPosition = [
   31.86404465759285,
 ];
 
+const stationModelUri = `${CurrentUrl}stationModel.glb`;
+
+// const stationModelUri = `${CurrentUrl}compressed_station_model.glb`;
+// const stationModelUri = `${CurrentUrl}compressd_station_model2.glb`;
+
 export const StationModel = {
   id: "station",
   position: [117.16918796871745, 31.85318321605651],
   positions: StationModelPosition,
   count: 10, //10个变电站
-  uri: `${CurrentUrl}station2.glb`,
+  uri: stationModelUri,
 };
 
 export const Models = [
@@ -209,3 +214,5 @@ export const DegreeOfElectricPower: IDegree = {
   Degree2: 1300,
   Degree3: 2000,
 };
+
+export const DegreeOfElectricPowerArray = [1000, 1300, 2000];

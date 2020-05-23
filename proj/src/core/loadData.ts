@@ -156,11 +156,6 @@ export function loadStationModels(viewer: Cesium.Viewer) {
   let id = 0;
   const stations = [];
   for (let i = 0; i < model.positions.length; i += 2) {
-    // console.log({
-    //   positions,
-    //   position: positions[i],
-    //   position2: positions[i + 1]
-    // });
     const res = addStationModel(
       viewer.entities,
       model.uri,

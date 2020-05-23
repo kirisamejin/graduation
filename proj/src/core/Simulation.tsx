@@ -1,55 +1,103 @@
 import * as React from "react";
 import "./Simulation.scss";
-import { StationModel } from "../constants/Models";
+
 import { Legend } from "./Legend";
+import { StationSimulator } from "./StationSimulator";
+import { FireSimulator } from "./FireSimulator";
 
 interface ISimulationProps {
   onSubmit: (stationId: number) => void;
 }
 
-export const Simulation = (props: ISimulationProps) => {
-  const [id, useId] = React.useState(-1);
-  const modelCount = StationModel.count;
-  const modelList = Array(modelCount);
-  for (let i = 0; i < modelCount; ++i) modelList[i] = i;
-
-  const optionsNode = modelList.map((v, i) => {
-    return (
-      <option key={i} value={v}>
-        {`${i}号变电站`}
-      </option>
-    );
-  });
-
-  const onChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      e.preventDefault();
-      useId(parseInt(e.target.value));
-    },
-    []
+function getIcon(isOn: boolean) {
+  const downIcon = (
+    <svg
+      t="1590244521022"
+      className="icon"
+      viewBox="0 0 1024 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="4523"
+      width="16"
+      height="16"
+    >
+      <path
+        d="M512 610.88L930.88 192 1024 285.12l-512 512-512-512L93.12 192z"
+        p-id="4524"
+      ></path>
+    </svg>
+  );
+  const rightIcon = (
+    <svg
+      t="1590244594262"
+      className="icon"
+      viewBox="0 0 1024 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="4909"
+      width="16"
+      height="16"
+    >
+      <path
+        d="M610.88 512L192 93.12 285.12 0l512 512-512 512L192 930.88z"
+        p-id="4910"
+      ></path>
+    </svg>
   );
 
+  return isOn ? downIcon : rightIcon;
+}
+
+export const Simulation = (props: ISimulationProps) => {
+  const [isOn, setOn] = React.useState(true);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const onClick = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    console.log(e.currentTarget.dataset);
+    setCurrentIndex(~~e.currentTarget.dataset.index);
+  };
   return (
     <div className="simucontainer">
-      <h3>火灾模拟</h3>
+      <div id="header">
+        <h3>模拟器</h3>
+        <div
+          className="switch"
+          onClick={() => {
+            setOn((isOn) => !isOn);
+          }}
+        >
+          {getIcon(isOn)}
+        </div>
+      </div>
       {/* <div id="animationPlayer">
         <p>动画播放</p>
       </div> */}
-      <div id="tripContainer">
-        <select className="checkbox" onChange={onChange}>
-          {optionsNode}
-        </select>
-        <button
-          className="defultbtn"
-          onClick={(e) => {
-            e.preventDefault();
-            props.onSubmit(id);
-          }}
-        >
-          <p>跳闸</p>
-        </button>
-      </div>
-      <Legend />
+      {isOn && (
+        <>
+          <ul id="navTab">
+            <li
+              key={0}
+              data-index={0}
+              className={`tab ${currentIndex === 0 ? "active" : "inactive"}`}
+              onClick={onClick}
+            >
+              火灾模拟
+            </li>
+            <li
+              data-index={1}
+              key={1}
+              className={`tab ${currentIndex === 1 ? "active" : "inactive"}`}
+              onClick={onClick}
+            >
+              断电模拟
+            </li>
+          </ul>
+          {currentIndex === 0 ? (
+            <FireSimulator />
+          ) : (
+            <StationSimulator onSubmit={props.onSubmit} />
+          )}
+        </>
+      )}
     </div>
   );
 };
